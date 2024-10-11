@@ -1,0 +1,82 @@
+# agentToken: <use your own> or provide via helm
+# graphqlToken: <use your own> or provide via helm
+# namespace: <use your own> or provide via helm
+
+config:
+  debug: false
+  #image: my.registry.dev/buildkite-agent:latest
+  job-ttl: 5m
+  image-pull-backoff-grace-period: 60s
+  poll-interval: 5s
+  max-in-flight: 100
+  # org: <use your own> or provide via helm
+
+  # cluster-uuid: <use your own> or provide via helm
+
+  pod-spec-patch:
+    initContainers:
+      - name: copy-agent
+    # requests:
+    #   cpu: 100m
+    #   memory: 50Mi
+    # limits:
+    #   memory: 100Mi
+
+    containers:
+      - name: agent # this container acquires the job
+        # resources:
+        #   requests:
+        #     cpu: 100m
+        #     memory: 50Mi
+        #   limits:
+        #     memory: 1Gi
+      - name: checkout # this container clones the repo
+      # resources:
+      #   requests:
+      #     cpu: 100m
+      #     memory: 50Mi
+      #   limits:
+      #     memory: 1Gi
+      - name: container-0 # the job runs in a container with this name by default
+        # resources:
+        #   requests:
+        #     cpu: 100m
+        #     memory: 50Mi
+        #   limits:
+        #     memory: 1Gi
+
+  tags:
+    - queue=default
+    - priority=high
+
+  # Causes the controller to prohibit the kubernetes plugin specified within jobs
+  # (pipeline YAML) - enabling this causes jobs with a kubernetes plugin to fail,
+  # preventing the pipeline YAML from having any influence over the podSpec
+  prohibit-kubernetes-plugin: true
+
+  # # Applies to the checkout container in all spawned pods
+  default-checkout-params:
+    envFrom:
+      - configMapRef:
+          name: agent-stack-k8s-env-vars-config # this configmap has to be created before deploying
+    # gitCredentialsSecret:
+    #   secretName: "my-git-credentials"
+    # envFrom:
+    #   - prefix: GITHUB_
+    #     secretRef:
+    #       name: github-secrets
+
+  # # Applies to all command containers in all spawned pods
+  # default-command-params:
+  #   interposer: vector
+  #   envFrom:
+  #     - prefix: DEPLOY_
+  #       secretRef:
+  #         name: deploy-secrets
+
+  # # Applies to all sidecar containers in all spawned pods
+  # default-sidecar-params:
+  #   envFrom:
+  #     - prefix: LOGGING_
+  #       configMapRef:
+  #         name: logging-config

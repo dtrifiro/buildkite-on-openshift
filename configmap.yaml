@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  # the container spawned by the controller does not set HOME,
+  # resulting in an attempt to run `mkdir /.buildkite-agent` in the root directory (mkdir $HOME/.buildkite_agent)
+  # Which is not allowed when running in openshift (unless `anyuid` is set.)
+  # Explicitly setting HOME to a writable directory solves the issue
+  HOME: /tmp
+kind: ConfigMap
+metadata:
+  name: agent-stack-k8s-env-vars-config
+  # namespace: buildkite
